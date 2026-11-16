@@ -24,6 +24,52 @@ h1 {
     font-size: 36px;
 }
 
+.top-menu {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 25px auto 35px;
+}
+
+button {
+    border: none;
+    border-radius: 25px;
+    padding: 12px 20px;
+    margin: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    background: gold;
+    color: #260040;
+}
+
+button:hover {
+    transform: scale(1.04);
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.menu-button {
+    padding: 15px 28px;
+    font-size: 17px;
+    background: #ffffff20;
+    color: white;
+    border: 2px solid gold;
+}
+
+.menu-button.active {
+    background: gold;
+    color: #260040;
+}
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* KOŁO */
+
 .main {
     display: flex;
     justify-content: center;
@@ -64,26 +110,6 @@ canvas {
     pointer-events: none;
 }
 
-button {
-    border: none;
-    border-radius: 25px;
-    padding: 12px 20px;
-    margin: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    background: gold;
-    color: #260040;
-}
-
-button:hover {
-    transform: scale(1.04);
-}
-
-button:disabled {
-    opacity: .5;
-    cursor: not-allowed;
-}
-
 .panel {
     width: 320px;
     max-width: 90vw;
@@ -94,7 +120,7 @@ button:disabled {
     box-shadow: 0 0 20px #0005;
 }
 
-.panel h2 {
+.panel h2, .cards-panel h2 {
     color: gold;
     text-align: center;
 }
@@ -153,8 +179,140 @@ input {
     margin-top: 20px;
 }
 
+/* KARTY */
+
+.cards-panel {
+    max-width: 1000px;
+    margin: auto;
+    padding: 25px;
+    background: #ffffff16;
+    border: 1px solid #ffffff35;
+    border-radius: 20px;
+    box-shadow: 0 0 20px #0005;
+}
+
+.cards-controls {
+    max-width: 420px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.card-item {
+    text-align: center;
+    min-width: 0;
+}
+
+.mystery-card {
+    min-height: 190px;
+    border-radius: 16px;
+    border: 3px solid gold;
+    background: linear-gradient(145deg, #3d0870, #17002d);
+    color: gold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 15px;
+    cursor: pointer;
+    transition: background .3s;
+    box-shadow: 0 5px 15px #0005;
+    overflow-wrap: anywhere;
+    text-align: center;
+    font-size: 23px;
+    user-select: none;
+    perspective: 800px;
+}
+
+.mystery-card:hover {
+    filter: brightness(1.2);
+}
+
+.question {
+    font-size: 65px;
+    font-weight: bold;
+}
+
+.mystery-card.revealed {
+    background: linear-gradient(145deg, #ffca28, #ff8c00);
+    color: #260040;
+    font-size: 20px;
+    font-weight: bold;
+    animation: reveal .5s ease;
+}
+
+.card-number {
+    font-size: 13px;
+    opacity: .7;
+    margin-top: 12px;
+}
+
+.delete-card {
+    background: #ff4545;
+    color: white;
+    margin-top: 10px;
+}
+
+/* ANIMACJA TASOWANIA */
+
+.card-item.shuffling {
+    animation: shuffleCard .75s ease-in-out;
+}
+
+@keyframes shuffleCard {
+    0% {
+        transform: translateX(0) rotate(0);
+    }
+    20% {
+        transform: translateX(-35px) rotate(-12deg);
+    }
+    45% {
+        transform: translateX(35px) rotate(12deg);
+    }
+    70% {
+        transform: translateX(-15px) rotate(-6deg);
+    }
+    100% {
+        transform: translateX(0) rotate(0);
+    }
+}
+
+@keyframes reveal {
+    from { transform: rotateY(90deg); }
+    to { transform: rotateY(0deg); }
+}
+
+.empty-cards {
+    text-align: center;
+    opacity: .7;
+    padding: 20px;
+    grid-column: 1 / -1;
+}
+
+#resetCards {
+    background: #e8aaff;
+}
+
+#shuffleCards {
+    background: #53d6ff;
+}
+
+.status {
+    text-align: center;
+    color: gold;
+    min-height: 25px;
+    font-weight: bold;
+}
+
 @media(max-width: 650px) {
     .main { gap: 30px; }
+    .cards-panel { padding: 15px; }
 }
 </style>
 </head>
@@ -163,46 +321,141 @@ input {
 
 <h1>🎡 KOŁO FORTUNY 🎡</h1>
 
-<div class="main">
+<!-- MENU -->
 
-    <div class="wheel-area">
-        <div class="wheel-box">
-            <div class="pointer">▼</div>
-            <canvas id="wheel" width="600" height="600"></canvas>
+<div class="top-menu">
+
+    <button class="menu-button active" data-screen="wheelScreen">
+        🎡 KOŁO FORTUNY
+    </button>
+
+    <button class="menu-button" data-screen="cardsScreen">
+        🎴 KARTY
+    </button>
+
+</div>
+
+<!-- EKRAN KOŁA -->
+
+<div id="wheelScreen" class="screen active">
+
+    <div class="main">
+
+        <div class="wheel-area">
+
+            <div class="wheel-box">
+                <div class="pointer">▼</div>
+                <canvas id="wheel" width="600" height="600"></canvas>
+            </div>
+
+            <button id="spin">🎡 ZAKRĘĆ KOŁEM</button>
+            <p>Kliknij również bezpośrednio w koło!</p>
+
         </div>
 
-        <button id="spin">🎡 ZAKRĘĆ KOŁEM</button>
-        <p>Kliknij również bezpośrednio w koło!</p>
+        <div class="panel">
+
+            <h2>🏆 WYNIK LOSOWANIA</h2>
+
+            <div id="result">
+                Czekam na losowanie...
+            </div>
+
+            <h2>➕ Dodaj imię lub napis</h2>
+
+            <input
+                type="text"
+                id="newName"
+                placeholder="Wpisz imię lub napis..."
+                maxlength="30"
+            >
+
+            <button id="add">DODAJ</button>
+
+            <h2>📝 Lista na kole</h2>
+
+            <ul id="list"></ul>
+
+        </div>
+
     </div>
 
-    <div class="panel">
+</div>
 
-        <h2>🏆 WYNIK LOSOWANIA</h2>
+<!-- EKRAN KART -->
 
-        <div id="result">
-            Czekam na losowanie...
+<div id="cardsScreen" class="screen">
+
+    <div class="cards-panel">
+
+        <h2>🎴 TAJEMNICZE KARTY 🎴</h2>
+
+        <p style="text-align:center">
+            Kliknij kartę, aby odkryć ukryty napis!
+        </p>
+
+        <p style="text-align:center;color:gold">
+            ⏱️ Odkryta karta zakrywa się po 30 sekundach.
+        </p>
+
+        <div class="cards-controls">
+
+            <h2>➕ Dodaj kartę</h2>
+
+            <input
+                type="text"
+                id="newCard"
+                placeholder="Wpisz ukryty napis..."
+                maxlength="100"
+            >
+
+            <button id="addCard">DODAJ KARTĘ</button>
+
+            <button id="resetCards">
+                🔄 ZAKRYJ WSZYSTKIE
+            </button>
+
+            <button id="shuffleCards">
+                🔀 PRZETASUJ KARTY
+            </button>
+
         </div>
 
-        <h2>➕ Dodaj imię lub napis</h2>
+        <div id="cardStatus" class="status"></div>
 
-        <input
-            type="text"
-            id="newName"
-            placeholder="Wpisz imię lub napis..."
-            maxlength="30"
-        >
-
-        <button id="add">DODAJ</button>
-
-        <h2>📝 Lista na kole</h2>
-
-        <ul id="list"></ul>
+        <div id="cardsGrid" class="cards-grid"></div>
 
     </div>
 
 </div>
 
 <script>
+
+/* MENU */
+
+const menuButtons = document.querySelectorAll(".menu-button");
+
+menuButtons.forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        document.querySelectorAll(".screen").forEach(screen => {
+            screen.classList.remove("active");
+        });
+
+        document.getElementById(button.dataset.screen)
+            .classList.add("active");
+
+        menuButtons.forEach(btn => btn.classList.remove("active"));
+        button.classList.add("active");
+
+    });
+
+});
+
+
+/* KOŁO FORTUNY */
+
 const canvas = document.getElementById("wheel");
 const ctx = canvas.getContext("2d");
 const spinBtn = document.getElementById("spin");
@@ -210,7 +463,15 @@ const result = document.getElementById("result");
 const input = document.getElementById("newName");
 const list = document.getElementById("list");
 
-let names = ["Maciej", "Janek", "Dominik", "Maya", "Iga"];
+let nextId = 1;
+
+let names = [
+    { id: nextId++, text: "Maciej" },
+    { id: nextId++, text: "Janek" },
+    { id: nextId++, text: "Dominik" },
+    { id: nextId++, text: "Maya" },
+    { id: nextId++, text: "Iga" }
+];
 
 const colors = [
     "#ff3838", "#3478ff", "#21c779",
@@ -222,11 +483,28 @@ let rotation = 0;
 let spinning = false;
 
 function draw() {
+
     ctx.clearRect(0, 0, 600, 600);
+
+    if (names.length === 0) {
+
+        ctx.beginPath();
+        ctx.arc(300, 300, 285, 0, Math.PI * 2);
+        ctx.fillStyle = "#502080";
+        ctx.fill();
+
+        ctx.fillStyle = "white";
+        ctx.font = "bold 30px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("Dodaj pozycje!", 300, 310);
+
+        return;
+    }
 
     const slice = Math.PI * 2 / names.length;
 
-    names.forEach((name, i) => {
+    names.forEach((entry, i) => {
+
         const start = rotation + i * slice;
         const end = start + slice;
 
@@ -251,53 +529,88 @@ function draw() {
         ctx.textAlign = "right";
         ctx.textBaseline = "middle";
 
-        ctx.fillText(name, 260, 0, 230);
+        ctx.fillText(entry.text, 260, 0, 230);
 
         ctx.restore();
+
     });
 
     ctx.beginPath();
     ctx.arc(300, 300, 35, 0, Math.PI * 2);
     ctx.fillStyle = "gold";
     ctx.fill();
+
 }
 
 function updateList() {
+
     list.innerHTML = "";
 
-    names.forEach((name, index) => {
+    names.forEach((entry, index) => {
+
         const li = document.createElement("li");
         const span = document.createElement("span");
-        span.textContent = name;
+
+        span.textContent = entry.text;
 
         const remove = document.createElement("button");
         remove.textContent = "X";
 
         remove.addEventListener("click", () => {
+
             if (spinning) return;
 
-            names.splice(index, 1);
+            const removed = names.splice(index, 1)[0];
+
+            // Usuń również powiązaną kartę.
+            const linkedCard = cards.find(
+                card => card.wheelId === removed.id
+            );
+
+            if (linkedCard) {
+                removeCardById(linkedCard.id);
+            }
+
             draw();
             updateList();
+
         });
 
         li.appendChild(span);
         li.appendChild(remove);
         list.appendChild(li);
+
     });
+
 }
 
 function addName() {
+
     const value = input.value.trim();
 
-    if (!value) return;
-    if (spinning) return;
+    if (!value || spinning) return;
 
-    names.push(value);
+    const entry = {
+        id: nextId++,
+        text: value
+    };
+
+    names.push(entry);
+
+    // Nowe imię automatycznie staje się kartą.
+    cards.push({
+        id: nextCardId++,
+        text: value,
+        revealed: false,
+        wheelId: entry.id
+    });
+
     input.value = "";
 
     draw();
     updateList();
+    renderCards();
+
 }
 
 document.getElementById("add").addEventListener("click", addName);
@@ -307,10 +620,12 @@ input.addEventListener("keydown", event => {
 });
 
 function spin() {
+
     if (spinning || names.length < 2) return;
 
     spinning = true;
     spinBtn.disabled = true;
+
     result.textContent = "Losowanie trwa... 🎲";
 
     const start = rotation;
@@ -319,39 +634,284 @@ function spin() {
     const startTime = performance.now();
 
     function animate(now) {
+
         const progress = Math.min((now - startTime) / duration, 1);
         const ease = 1 - Math.pow(1 - progress, 4);
 
         rotation = start + distance * ease;
+
         draw();
 
         if (progress < 1) {
+
             requestAnimationFrame(animate);
+
         } else {
+
             rotation %= Math.PI * 2;
 
             const slice = Math.PI * 2 / names.length;
+
             const angle = (
                 Math.PI * 1.5 - rotation + Math.PI * 2
             ) % (Math.PI * 2);
 
             const index = Math.floor(angle / slice);
 
-            result.textContent = "🏆 " + names[index] + " 🎉";
+            result.textContent = "🏆 " + names[index].text + " 🎉";
 
             spinning = false;
             spinBtn.disabled = false;
+
         }
+
     }
 
     requestAnimationFrame(animate);
+
 }
 
 spinBtn.addEventListener("click", spin);
 canvas.addEventListener("click", spin);
 
+
+/* KARTY */
+
+let nextCardId = 1;
+
+let cards = names.map(entry => ({
+    id: nextCardId++,
+    text: entry.text,
+    revealed: false,
+    wheelId: entry.id
+}));
+
+// Osobny timer dla każdej odkrytej karty.
+const cardTimers = new Map();
+
+function clearCardTimer(id) {
+
+    if (cardTimers.has(id)) {
+        clearTimeout(cardTimers.get(id));
+        cardTimers.delete(id);
+    }
+
+}
+
+function renderCards(shuffling = false) {
+
+    const grid = document.getElementById("cardsGrid");
+
+    grid.innerHTML = "";
+
+    if (cards.length === 0) {
+
+        const empty = document.createElement("p");
+        empty.className = "empty-cards";
+        empty.textContent = "Nie ma jeszcze żadnych kart. Dodaj pierwszą!";
+
+        grid.appendChild(empty);
+        return;
+
+    }
+
+    cards.forEach((card, index) => {
+
+        const item = document.createElement("div");
+        item.className = "card-item";
+
+        if (shuffling) {
+            item.classList.add("shuffling");
+        }
+
+        const cardElement = document.createElement("div");
+        cardElement.className = "mystery-card";
+
+        if (card.revealed) {
+
+            cardElement.classList.add("revealed");
+            cardElement.textContent = card.text;
+
+        } else {
+
+            const question = document.createElement("span");
+            question.className = "question";
+            question.textContent = "?";
+
+            cardElement.appendChild(question);
+
+            const number = document.createElement("span");
+            number.className = "card-number";
+            number.textContent = "KARTA " + (index + 1);
+
+            cardElement.appendChild(number);
+
+        }
+
+        cardElement.addEventListener("click", () => {
+
+            if (card.revealed) {
+
+                // Ręczne zakrycie karty.
+                clearCardTimer(card.id);
+                card.revealed = false;
+
+                renderCards();
+
+            } else {
+
+                revealCard(card);
+
+            }
+
+        });
+
+        const deleteButton = document.createElement("button");
+
+        deleteButton.className = "delete-card";
+        deleteButton.textContent = "❌ USUŃ";
+
+        deleteButton.addEventListener("click", () => {
+            removeCardById(card.id);
+        });
+
+        item.appendChild(cardElement);
+        item.appendChild(deleteButton);
+
+        grid.appendChild(item);
+
+    });
+
+}
+
+function revealCard(card) {
+
+    if (card.revealed) return;
+
+    card.revealed = true;
+
+    renderCards();
+
+    const status = document.getElementById("cardStatus");
+
+    status.textContent = "🎉 Karta odkryta! Zakryje się za 30 sekund.";
+
+    // Po 30 sekundach zakryj kartę i przetasuj wszystkie.
+    const timer = setTimeout(() => {
+
+        cardTimers.delete(card.id);
+
+        const currentCard = cards.find(c => c.id === card.id);
+
+        if (!currentCard) return;
+
+        currentCard.revealed = false;
+
+        status.textContent = "🔀 Karta zakryta! Tasowanie...";
+
+        shuffleCards(true);
+
+    }, 30000);
+
+    cardTimers.set(card.id, timer);
+
+}
+
+function addCard() {
+
+    const cardInput = document.getElementById("newCard");
+    const value = cardInput.value.trim();
+
+    if (!value) return;
+
+    cards.push({
+        id: nextCardId++,
+        text: value,
+        revealed: false,
+        wheelId: null
+    });
+
+    cardInput.value = "";
+
+    renderCards();
+
+}
+
+document.getElementById("addCard")
+    .addEventListener("click", addCard);
+
+document.getElementById("newCard")
+    .addEventListener("keydown", event => {
+
+        if (event.key === "Enter") addCard();
+
+    });
+
+function removeCardById(id) {
+
+    clearCardTimer(id);
+
+    cards = cards.filter(card => card.id !== id);
+
+    renderCards();
+
+}
+
+// Tasowanie kart metodą Fishera-Yatesa.
+function shuffleCards(automatic = false) {
+
+    // Zakryj wszystkie karty i anuluj ich timery.
+    cards.forEach(card => {
+        card.revealed = false;
+        clearCardTimer(card.id);
+    });
+
+    // Losowa kolejność kart.
+    for (let i = cards.length - 1; i > 0; i--) {
+
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [cards[i], cards[j]] = [cards[j], cards[i]];
+
+    }
+
+    document.getElementById("cardStatus").textContent =
+        automatic
+        ? "🔀 Automatyczne przetasowanie!"
+        : "🔀 Karty zostały przetasowane!";
+
+    // Animacja przetasowania.
+    renderCards(true);
+
+}
+
+document.getElementById("resetCards")
+    .addEventListener("click", () => {
+
+        cards.forEach(card => {
+            card.revealed = false;
+            clearCardTimer(card.id);
+        });
+
+        renderCards();
+
+        document.getElementById("cardStatus").textContent =
+            "Wszystkie karty zostały zakryte.";
+
+    });
+
+document.getElementById("shuffleCards")
+    .addEventListener("click", () => {
+        shuffleCards(false);
+    });
+
+
+/* START */
+
 draw();
 updateList();
+renderCards();
+
 </script>
 
 </body>
